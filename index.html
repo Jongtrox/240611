@@ -1,0 +1,63 @@
+let letters = [];
+let gravity = 1.0;
+let mass = 5.0;
+let texts = ['O', 'S', 'L'];
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  noStroke();
+  for (let i = 0; i < texts.length; i++) {
+    letters.push(new Spring2D(random(width), random(height), mass, gravity, texts[i], width));
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  fill(255, 150);
+  rect(0, 0, width, height);
+}
+
+function draw() {
+  fill(255, 150);
+  rect(0, 0, width, height);
+
+  letters[0].update(mouseX, mouseY);
+  letters[0].display();
+
+  for (let i = 1; i < letters.length; i++) {
+    letters[i].update(letters[i-1].x, letters[i-1].y);
+    letters[i].display();
+  }
+}
+
+function Spring2D(xpos, ypos, m, g, letter, w) {
+  this.x = xpos;
+  this.y = ypos;
+  this.vx = 0;
+  this.vy = 0;
+  this.mass = m;
+  this.gravity = g;
+  this.radius = 0.0008 * w;
+  this.stiffness = 0.2;
+  this.damping = 0.7;
+  this.letter = letter;
+
+  this.update = function (targetX, targetY) {
+    let forceX = (targetX - this.x) * this.stiffness;
+    let ax = forceX / this.mass;
+    this.vx = this.damping * (this.vx + ax);
+    this.x += this.vx;
+    let forceY = (targetY - this.y) * this.stiffness;
+    forceY += this.gravity;
+    let ay = forceY / this.mass;
+    this.vy = this.damping * (this.vy + ay);
+    this.y += this.vy;
+  };
+
+  this.display = function () {
+    textAlign(CENTER, CENTER);
+    textSize(this.radius * 256);
+    fill(0);
+    text(this.letter, this.x, this.y);
+  };
+}
